@@ -1,0 +1,163 @@
+<div [@routerTransition]>
+  <p-fieldset legend="Users" [toggleable]="false">
+    <div class="row" [hidden]="operation!='view'">
+      <div class="col col-sm-12">
+        <div class="card mb-3">
+          <div class="card-header">
+            Users
+            <button class="btn btn-sm pull-right btn-success" title="Add New User"
+              (click)="detailsForm.reset();open(null)">
+              <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="card-body">
+            <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"
+              class="table table-striped row-border hover">
+
+              <thead id="table">
+                <tr>
+                  <th>User Name</th>
+                  <th>Email Adress</th>
+                  <th>Creation Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let _item of list; let i = index">
+                  <td>{{_item['userName']}}</td>
+                  <td>{{_item['email']}}</td>
+                  <td>{{_item['creationDate'] | date}}</td>
+                  <td>
+                    <button class="btn btn-sm btn-info" title="View User" (click)="open(_item)">
+                      <i class="fa fa-eye" aria-hidden="true"></i>
+                    </button>
+                    &nbsp;
+                    <button class="btn btn-sm btn-danger" title="Delete User" mwlConfirmationPopover
+                      popoverTitle="Confirm Delete ?" (confirm)="delete(_item,i)"
+                      cancelText="No <i class='fa fa-ban' aria-hidden='true'></i>"
+                      confirmText="Yes <i class='fa fa-check' aria-hidden='true'></i>">
+                      <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row ">
+      <div class="col-12" [hidden]="operation=='view'">
+        <form name="detailsForm" #detailsForm="ngForm" class="row" (ngSubmit)="save();" novalidate>
+          <div class="col col-sm-12">
+            <div class="card mb-3">
+              <div class="card-header">
+                <span [hidden]="operation!='add'">Add New User</span>
+                <span [hidden]="operation!='edit'">Edit {{item?.userName}}</span>
+              </div>
+              <div class="card-body" style="    padding: 10px;">
+                <div class="row">
+                  <div class="col-6">
+                    <label>User Name
+                      <span class="text-danger">*</span>: </label>
+                    <div class="form-group">
+                      <input #Name="ngModel" name="Name" class="form-control" type="text" required
+                        pattern="{{patterns.UserName}}" [(ngModel)]="item['userName']" autofocus />
+                    </div>
+                    <div *ngIf="Name.invalid && (Name.dirty || Name.touched)" class="alert alert-danger">
+                      <div *ngIf="Name.errors?.['required']">
+                        User Name is required.
+                      </div>
+                      <div *ngIf="Name.errors?.['pattern']">
+                        User Name is not valid.
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <label>Full Name
+                      <span class="text-danger">*</span>: </label>
+                    <div class="form-group">
+                      <input #fullName="ngModel" name="fullName" class="form-control" type="text" required
+                        pattern="{{patterns.Alphanumeric}}" [(ngModel)]="item['fullName']" autofocus />
+                    </div>
+                    <div *ngIf="fullName.invalid && (fullName.dirty || fullName.touched)" class="alert alert-danger">
+                      <div *ngIf="fullName.errors?.['required']">
+                        Full Name is required.
+                      </div>
+                      <div *ngIf="fullName.errors?.['pattern']">
+                        Full Name is not valid.
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+
+                    <div class="col-xl-5">
+                      <label>Email Address
+                        <span class="text-danger">*</span>: </label>
+                      <div class="form-group">
+                        <input #email="ngModel" name="email" class="form-control" type="text" required
+                          pattern="{{patterns.Email}}" [(ngModel)]="item['email']" />
+                      </div>
+                      <div *ngIf="email.invalid && (email.dirty || email.touched)" class="alert alert-danger">
+                        <div *ngIf="email.errors?.['required']">
+                          Email Address is required.
+                        </div>
+                        <div *ngIf="email.errors?.['pattern']">
+                          Email Address not valid.
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-xl-2" style="text-align:center"
+                      [ngStyle]="{'visibility': !item['id'] ? 'hidden' : 'visible' }">
+                      <label>Change Password<span class="text-danger"></span>: </label>
+                      <div class="form-group">
+                        <p-inputSwitch name="changPass" [(ngModel)]="changePass">Change Password
+                          ?
+                        </p-inputSwitch>
+                      </div>
+                    </div>
+                    <div class="col-xl-5" *ngIf="changePass || !item['id']">
+                      <label>Password
+                        <span class="text-danger">*</span>: </label>
+
+                      <div class="form-group">
+                        <input #pass="ngModel" name="pass" required class="form-control" type="Password"
+                          pattern="{{patterns.Password}}" [(ngModel)]="item['password']" autofocus />
+
+                        <div *ngIf="pass.invalid && (pass.dirty || pass.touched)" class="alert alert-danger">
+                          <div *ngIf="pass.errors?.['required'] ">
+                            Password is required.
+                          </div>
+                          <div *ngIf="pass.errors?.['pattern']">
+                            <p><strong> Password is not valid.</strong> </p>
+                            <p>Minimum of 8 characters</p>
+                            <p>At least one Special Character</p>
+                            <p>At least one uppercase</p>
+                            <p>At least one lowercase</p>
+                            <p>At least one digit</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <div class="text-right">
+                  <button type="button" class="btn btn-default" (click)="back();">
+                    <i class="fa fa-chevron-left" aria-hidden="true"></i> Back</button>&nbsp;
+                  <button class="btn btn-success" [disabled]="detailsForm.invalid" type="submit">Save
+                    <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </p-fieldset>
+
+</div>
